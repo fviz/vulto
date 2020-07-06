@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <title>Vulto</title>
+    <link rel="stylesheet" href="dist/app.css">
+    <link rel="stylesheet" href="node_modules/bulma/css/bulma.css">
+</head>
+
+<body>
+<div class="updateNote">
+    Status
+</div>
+<div class="ui">
+
+    <section class="section">
+        <div class="container" style="font-family: serif">
+            <p><strong>vulto</strong></p><br><br>
+            <p>Someone was here before you...</p>
+            <p>They haven't left entirely, though.</p>
+            <p>They want to say hi.</p><br><br><br>
+
+            <div class="loaddiv">
+                <img src="load.svg" alt="" width="32px">
+            </div>
+            <p class="subtitle">
+            <button id="trackbutton" class="button is-black" type="button" disabled>
+                Say hi
+            </button>
+            </p>
+        </div>
+    </section>
+</div>
+<div class="threeContainer">
+
+</div>
+<video class="videobox canvasbox" autoplay="autoplay" id="myvideo" width="640" height="480"></video>
+<br>
+<canvas id="canvas" class="border canvasbox" width="100px" height="50px"></canvas>
+
+<script src="dist/app.js"></script>
+</body>
+
+</html>
