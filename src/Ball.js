@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 export class Ball {
-    constructor() {
+    constructor(ip = null, buffer = null) {
         this.size = 120;
         this.position = {
             x: 0,
@@ -14,10 +14,19 @@ export class Ball {
         this.sphere = null;
         this.playback = false;
         this.buffer = [];
+
         this.bufferIterator = 0;
         this.skipFrames = true;
         this.skipFrameCheck = true;
+        this.lastFrameTime = null;
         this.DOMElement = this.generateDOMElement();
+        if (buffer) {
+            this.buffer = JSON.parse(buffer);
+        }
+        if (ip) {
+            this.ip = ip;
+            this.DOMElement.innerText = this.ip;
+        }
     }
 
     generateSphere() {
@@ -36,10 +45,9 @@ export class Ball {
 
     generateDOMElement() {
         let element = document.createElement("div");
-        element.innerText = "You";
-        element.style.position = 'absolute';
-        element.style.color = 'black';
-        element.style.backgroundColor = 'white';
+        element.classList.add("label");
+        element.innerText = this.ip;
+
         document.body.appendChild(element);
         return element;
     }
@@ -85,7 +93,7 @@ export class Ball {
     setPosition(x, y) {
         if (isNaN(x) || isNaN(y)) {
             x = 0;
-            y= 0;
+            y = 0;
         }
         let previousPositionX = this.position.x;
         let previousPositionY = this.position.y;
@@ -111,16 +119,19 @@ export class Ball {
             this.bufferIterator = 0;
         }
         if (this.playback) {
+            if (this.buffer.length > 10) {
+                this.setPosition(this.buffer[this.bufferIterator].x, this.buffer[this.bufferIterator].y);
 
-            this.setPosition(this.buffer[this.bufferIterator].x, this.buffer[this.bufferIterator].y);
-
-            if (this.skipFrames) {
-                if (this.skipFrameCheck) {
-                    this.skipFrameCheck = false;
-                    this.bufferIterator++;
-                } else {
-                    this.skipFrameCheck = true;
+                if (this.skipFrames) {
+                    let currentTime = new Date();
+                    let timeDifference = currentTime - this.lastFrameTime;
+                    if (timeDifference >= 1000 / 3) {
+                        this.bufferIterator++;
+                        this.lastFrameTime = currentTime;
+                    }
                 }
+            } else {
+                console.log("buffer too small");
             }
         }
     }

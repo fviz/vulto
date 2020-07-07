@@ -17,29 +17,37 @@
 
     <section class="section">
         <div class="container" style="font-family: serif">
-            <p><strong>vulto</strong></p><br><br>
+            <p><b>vulto</b></p><br><br>
+            <b>
             <p>Someone was here before you...</p>
-            <p>They haven't left entirely, though.</p>
-            <p>They want to say hi.</p><br><br><br>
+            <p>They want to say hi.</p></b><br><br><br>
 
             <div class="loaddiv">
                 <img src="load.svg" alt="" width="32px">
+                <button id="trackbutton" class="button" type="button" disabled>
+                    Say hi
+                </button>
             </div>
-            <p class="subtitle">
-            <button id="trackbutton" class="button is-black" type="button" disabled>
-                Say hi
-            </button>
+            <p class="sub">
+            <br>
+            <hr>
+            <br>
+            <img src="hand.png" alt="" class="handIcon"><br><br>
+            vulto uses your webcam to track hand movements.<br>
+            for best results consider a well illuminated room<br>
+            and a minimum distance of 45cm from your webcam.
             </p>
         </div>
     </section>
 </div>
 <div class="threeContainer">
-
 </div>
 <video class="videobox canvasbox" autoplay="autoplay" id="myvideo" width="640" height="480"></video>
-<br>
 <canvas id="canvas" class="border canvasbox" width="100px" height="50px"></canvas>
-
+<div class="handIndicator">
+    <img src="hand.png" alt="">
+    <div class="saveIndicator"></div>
+</div>
 <script src="dist/app.js"></script>
 </body>
 

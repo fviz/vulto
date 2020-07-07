@@ -6,16 +6,31 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import {handtrack} from "./handtrack";
 import {threeSetup} from "./threesetup";
 import {Ball} from "./Ball";
+const axios = require('axios').default;
 
+let time = new Date();
+let enableLoad = true;
+
+let controls;
+let clothMaterial;
 
 let userBall = new Ball();
+userBall.DOMElement.innerText  = 'user';
 window.balls = [userBall];
+
+axios.get('https://vultoserver.vizent.in/api/fetch').then((response) => {
+    let loadedBall = new Ball(response.data.ip, response.data.buffer);
+    loadedBall.generateSphere();
+    loadedBall.playback = true;
+    window.balls.push(loadedBall);
+}).catch((err) => {
+});
 
 window.trackingVideoSize = {
     x: 640,
     y: 480
 }
-let backgroundColor = 0x222222;
+let backgroundColor = 0x000000;
 
 
 
@@ -420,7 +435,7 @@ function init() {
     var clothTexture = loader.load( 'mypat1.png' );
     clothTexture.anisotropy = 16;
 
-    var clothMaterial = new THREE.MeshLambertMaterial( {
+    clothMaterial = new THREE.MeshLambertMaterial( {
         map: clothTexture,
         side: THREE.DoubleSide,
         alphaTest: 0.5,
@@ -480,7 +495,7 @@ function init() {
     renderer.shadowMap.enabled = true;
 
     // controls
-    var controls = new OrbitControls( camera, renderer.domElement );
+    controls = new OrbitControls( camera, renderer.domElement );
     controls.maxPolarAngle = Math.PI * 0.5;
     controls.minDistance = 1000;
     controls.maxDistance = 5000;
@@ -531,6 +546,19 @@ function onWindowResize() {
 
 function animate( now ) {
 
+    let currentTime = new Date();
+    let timeDiff = currentTime - time;
+    if (timeDiff > 30000 && enableLoad) {
+        enableLoad = false;
+        axios.get('https://vultoserver.vizent.in/api/fetch').then((response) => {
+            let loadedBall = new Ball(response.data.ip, response.data.buffer);
+            loadedBall.generateSphere();
+            loadedBall.playback = true;
+            window.balls.push(loadedBall);
+        }).catch((err) => {
+        });
+    }
+    controls.update();
     requestAnimationFrame( animate );
     if (window.animateSphere) {
         window.animateSphere();

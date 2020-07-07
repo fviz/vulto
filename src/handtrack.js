@@ -1,19 +1,24 @@
 import * as handTrack from "handtrackjs";
 import {Ball} from "./Ball";
 import {load} from "handtrackjs";
+const axios = require('axios').default;
 
 let xAverageArray = [];
 let yAverageArray = [];
 
 class RecordSession {
     constructor() {
-        this.limit = 200;
+        this.limit = 2000;
         this.buffer = [];
-        this.ball = new Ball();
+        // this.ball = new Ball();
         this.recording = true;
     }
 
     addToBuffer(record) {
+        if (this.buffer.length % 75 === 0 && this.buffer.length > 0) {
+            this.saveToCloud();
+        }
+
         if (this.buffer.length < this.limit) {
             this.buffer.push(record);
         } else {
@@ -21,18 +26,31 @@ class RecordSession {
         }
     }
 
+    saveToCloud() {
+        axios.post('https://vultoserver.vizent.in/api/save_buffer', {buffer: this.buffer})
+            .then((response) => {
+                window.saveIndicator.classList.remove('saveAnimation');
+                void window.saveIndicator.offsetWidth;
+                window.saveIndicator.classList.add('saveAnimation');
+                })
+            .catch((err) => [
+
+            ]);
+    }
+
     finishedRecording() {
         if (this.recording) {
-            console.log("Finished recording");
-            this.recording = false;
-            window.balls.push(this.ball);
-            this.ball.generateSphere();
-            this.ball.buffer = this.buffer;
-            this.ball.playback = true;
-            this.ball.DOMElement.innerText = "IP: 34.33.0.3\nDATE: 30/04/2021 8:32PM";
+            // console.log("Finished recording");
+            // this.recording = false;
+            // window.balls.push(this.ball);
+            // this.ball.generateSphere();
+            // this.ball.buffer = this.buffer;
+            // this.ball.playback = true;
+            // this.ball.DOMElement.innerText = "IP: 34.33.0.3\nDATE: 30/04/2021 8:32PM";
         }
     }
 }
+
 
 let recordSession = new RecordSession();
 
@@ -44,6 +62,8 @@ export function handtrack() {
     let loadingStatus = document.querySelector(".loaddiv");
     let updateNote = document.querySelector(".updateNote");
     let ui = document.querySelector('.ui');
+    let handIndicator = document.querySelector('.handIndicator');
+    window.saveIndicator = document.querySelector('.saveIndicator');
 
     let isVideo = false;
     let model = null;
@@ -55,7 +75,7 @@ export function handtrack() {
         flipHorizontal: true,   // flip e.g for video
         maxNumBoxes: 20,        // maximum number of boxes to detect
         iouThreshold: 0.5,      // ioU threshold for non-max suppression
-        scoreThreshold: 0.66,    // confidence threshold for predictions.
+        scoreThreshold: 0.7,    // confidence threshold for predictions.
     }
 
     function startVideo() {
@@ -82,6 +102,7 @@ export function handtrack() {
     trackButton.addEventListener("click", function(){
         toggleVideo();
         ui.style.display = 'none';
+        handIndicator.style.opacity = '0.2';
     });
 
     function calculateAverage(array) {
@@ -101,6 +122,7 @@ export function handtrack() {
             // console.log("Predictions: ", predictions);
             // model.renderPredictions(predictions, canvas, context, video);
             if (predictions.length > 0) {
+                handIndicator.classList.add("handActive");
                 window.isCapturing = true;
                 predictions.forEach( (prediction) => {
                     let bbox = prediction.bbox;
@@ -142,6 +164,7 @@ export function handtrack() {
                     }
                 });
             } else {
+                handIndicator.classList.remove('handActive');
                 window.isCapturing = false;
             }
             if (isVideo) {
@@ -154,7 +177,7 @@ export function handtrack() {
     handTrack.load(modelParams).then(lmodel => {
         // detect objects in the image.
         model = lmodel;
-        loadingStatus.style.opacity = '0';
+        loadingStatus.children[0].style.display = 'none';
         trackButton.style.display = 'inline';
         trackButton.disabled = false;
     });
